@@ -1,0 +1,60 @@
+#include <SD.h>  // need to include the SD library
+//#define SD_ChipSelectPin 53  //example uses hardware SS pin 53 on Mega2560
+#define SD_ChipSelectPin 4  //using digital pin 4 on arduino nano 328, can use other pins
+#include <TMRpcm.h>         //  also need to include this library...
+#include <SPI.h>
+#define USE_TIMER2
+#define rampMega
+
+long randNumber;  // the variable which is supposed to hold the random number
+
+TMRpcm tmrpcm;  // create an object for use in this sketch
+
+int buttonPin = 7;
+int buttonState = 0;
+
+void setup() {
+  pinMode(buttonPin, INPUT_PULLUP);
+  tmrpcm.speakerPin = 9;  //5,6,11 or 46 on Mega, 9 on Uno, Nano, etc
+  randomSeed(analogRead(0));
+  Serial.begin(9600);
+  if (!SD.begin(SD_ChipSelectPin)) {  // see if the card is present and can be initialized:
+    Serial.println("SD fail");
+    return;  // don't do anything more if not
+  }
+  Serial.println("SD card present");
+  tmrpcm.setVolume(6);       //0 to 7. Set volume level
+  tmrpcm.quality(2);         //Set 1 for 2x oversampling, 0 for normal. Must be called before playback.
+  tmrpcm.play("intro.wav");  //the sound file "music" will play each time the arduino powers up, or is reset
+}
+
+void loop() {
+  buttonState = digitalRead(buttonPin);
+  //digitalWrite(pinNumber, HIGH);
+  //Serial.println(buttonState);
+  {
+    if (buttonState == LOW) {
+      randNumber = random(0, 5);  // generate a random number
+      Serial.println(randNumber);  // send the random number to the serial port
+      delay(500);
+      if (randNumber == 0) {
+        tmrpcm.play("gospel1.wav");
+      }
+      if (randNumber == 1) {
+        tmrpcm.play("01.wav");
+      }
+      if (randNumber == 2) {
+        tmrpcm.play("02.wav");
+      }
+      if (randNumber == 3) {
+        tmrpcm.play("03.wav");
+      }
+      if (randNumber == 4) {
+        tmrpcm.play("04.wav");
+      }
+      if (randNumber == 5) {
+        tmrpcm.play("05.wav");
+      }
+    }
+  }
+}
